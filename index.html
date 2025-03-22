@@ -210,104 +210,135 @@
 
     <script>
      
-        // Function to calculate progress
-        function calculateProgress(userAnswer, correctAnswer) {
-            const userAnswerLower = userAnswer.toLowerCase();
-            const correctAnswerLower = correctAnswer.toLowerCase();
-            let similarity = 0;
+       let puzzles = [];
+let currentPuzzle = 0;
 
-            // Compare letter by letter
-            for (let i = 0; i < Math.min(userAnswerLower.length, correctAnswerLower.length); i++) {
-                if (userAnswerLower[i] === correctAnswerLower[i]) {
-                    similarity++;
-                }
-            }
+// Fetch the puzzle data from the JSON file
+function fetchPuzzles() {
+    fetch('puzzles.json')  // Assuming the JSON file is in the same directory
+        .then(response => response.json())
+        .then(data => {
+            puzzles = data.puzzles;  // Store the puzzles in the 'puzzles' array
+            loadPuzzle();  // Load the first puzzle
+        })
+        .catch(err => console.error('Error loading puzzle data:', err));
+}
 
-            return (similarity / correctAnswerLower.length) * 100;
+// Function to check if today's date matches the puzzle date
+function checkForTodayPuzzle() {
+    const today = new Date().toLocaleDateString('en-GB'); // Get today's date in format: DD/MM/YYYY
+    const puzzle = puzzles.find(puzzle => puzzle.date === today); // Find the puzzle for today
+    if (puzzle) {
+        currentPuzzle = puzzles.indexOf(puzzle);  // Set the current puzzle to the puzzle for today
+        loadPuzzle();  // Load the puzzle
+    } else {
+        document.getElementById('emoji-puzzle').textContent = "No puzzle for today!";
+    }
+}
+
+// Function to load the puzzle for today
+function loadPuzzle() {
+    document.getElementById('emoji-puzzle').textContent = puzzles[currentPuzzle].emoji;
+}
+
+// Function to calculate progress
+function calculateProgress(userAnswer, correctAnswer) {
+    const userAnswerLower = userAnswer.toLowerCase();
+    const correctAnswerLower = correctAnswer.toLowerCase();
+    let similarity = 0;
+
+    // Compare letter by letter
+    for (let i = 0; i < Math.min(userAnswerLower.length, correctAnswerLower.length); i++) {
+        if (userAnswerLower[i] === correctAnswerLower[i]) {
+            similarity++;
         }
+    }
 
-        function updateProgressBar(progress, message) {
-            const progressBar = document.getElementById('progress-bar');
-            progressBar.style.width = `${progress}%`;
+    return (similarity / correctAnswerLower.length) * 100;
+}
 
-            if (progress === 100) {
-                progressBar.style.backgroundColor = 'green';
-                document.getElementById('message').textContent = 'Correct! 🎉';
-            } else if (progress >= 50) {
-                progressBar.style.backgroundColor = 'orange';
-                document.getElementById('message').textContent = message || 'Almost there!';
-            } else {
-                progressBar.style.backgroundColor = 'red';
-                document.getElementById('message').textContent = 'Try again! ❌';
-            }
+// Function to update the progress bar
+function updateProgressBar(progress, message) {
+    const progressBar = document.getElementById('progress-bar');
+    progressBar.style.width = `${progress}%`;
+
+    if (progress === 100) {
+        progressBar.style.backgroundColor = 'green';
+        document.getElementById('message').textContent = 'Correct! 🎉';
+    } else if (progress >= 50) {
+        progressBar.style.backgroundColor = 'orange';
+        document.getElementById('message').textContent = message || 'Almost there!';
+    } else {
+        progressBar.style.backgroundColor = 'red';
+        document.getElementById('message').textContent = 'Try again! ❌';
+    }
+}
+
+// Function to submit the answer
+function submitAnswer() {
+    const userAnswer = document.getElementById('answer-input').value.trim();
+    const correctAnswer = puzzles[currentPuzzle].answer;
+
+    if (!userAnswer) {
+        updateProgressBar(0, 'Try again! ❌');
+        return;
+    }
+
+    const progress = calculateProgress(userAnswer, correctAnswer);
+    updateProgressBar(progress);
+
+    if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
+        localStorage.setItem('puzzleCompleted', 'true');
+        currentPuzzle++;
+        if (currentPuzzle < puzzles.length) {
+            setTimeout(loadPuzzle, 1000);
+        } else {
+            document.getElementById('message').textContent = 'You finished the puzzle! 🏆';
+            document.getElementById('next-puzzle-message').textContent = 'Come back tomorrow for another puzzle!';
         }
+    }
+}
 
-        function submitAnswer() {
-            const userAnswer = document.getElementById('answer-input').value.trim();
-            const correctAnswer = puzzles[currentPuzzle].answer;
+// Event listener for the submit button
+document.getElementById('submit-btn').addEventListener('click', submitAnswer);
 
-            if (!userAnswer) {
-                updateProgressBar(0, 'Try again! ❌');
-                return;
-            }
+// Allow Enter key to submit answer
+document.getElementById('answer-input').addEventListener('keypress', function (event) {
+    if (event.key === 'Enter') {
+        submitAnswer();
+    }
+});
 
-            const progress = calculateProgress(userAnswer, correctAnswer);
-            updateProgressBar(progress);
+// Check if the puzzle has been completed before
+function checkIfPuzzleCompleted() {
+    const completed = localStorage.getItem('puzzleCompleted');
+    if (completed === 'true') {
+        document.getElementById('message').textContent = 'You finished the puzzle! 🏆';
+        document.getElementById('next-puzzle-message').textContent = 'Come back tomorrow for another puzzle!';
+    } else {
+        loadPuzzle();
+    }
+}
 
-            if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
-                localStorage.setItem('puzzleCompleted', 'true');
-                currentPuzzle++;
-                if (currentPuzzle < puzzles.length) {
-                    setTimeout(loadPuzzle, 1000);
-                } else {
-                    document.getElementById('message').textContent = 'You finished the puzzle! 🏆';
-                    document.getElementById('next-puzzle-message').textContent = 'Come back tomorrow for another puzzle!';
-                }
-            }
-        }
+// Function to reset puzzle at midnight local time
+function checkForMidnightReset() {
+    const currentDate = new Date();
+    const midnight = new Date();
+    midnight.setHours(0, 0, 0, 0); // Set to midnight
 
-        document.getElementById('submit-btn').addEventListener('click', submitAnswer);
+    if (currentDate.getTime() >= midnight.getTime()) {
+        localStorage.removeItem('puzzleCompleted');
+        loadPuzzle(); // Reload puzzle
+    }
+}
 
-        // Allow Enter key to submit answer
-        document.getElementById('answer-input').addEventListener('keypress', function (event) {
-            if (event.key === 'Enter') {
-                submitAnswer();
-            }
-        });
+// Initial setup
+window.onload = function () {
+    fetchPuzzles();  // Fetch puzzles when the page loads
+    checkForMidnightReset();
+    checkIfPuzzleCompleted();
+};
 
-        // Check if the puzzle has been completed before
-        function checkIfPuzzleCompleted() {
-            const completed = localStorage.getItem('puzzleCompleted');
-            if (completed === 'true') {
-                document.getElementById('message').textContent = 'You finished the puzzle! 🏆';
-                document.getElementById('next-puzzle-message').textContent = 'Come back tomorrow for another puzzle!';
-            } else {
-                loadPuzzle();
-            }
-        }
-
-        // Function to reset puzzle at midnight local time
-        function checkForMidnightReset() {
-            const currentDate = new Date();
-            const midnight = new Date();
-            midnight.setHours(0, 0, 0, 0); // Set to midnight
-
-            if (currentDate.getTime() >= midnight.getTime()) {
-                localStorage.removeItem('puzzleCompleted');
-                loadPuzzle(); // Reload puzzle
-            }
-        }
-
-        // Function to load a new puzzle
-        function loadPuzzle() {
-            document.getElementById('emoji-puzzle').textContent = puzzles[currentPuzzle].emoji;
-        }
-
-        // Initial setup
-        window.onload = function () {
-            checkForMidnightReset();
-            checkIfPuzzleCompleted();
-        };
     </script>
 </body>
 
