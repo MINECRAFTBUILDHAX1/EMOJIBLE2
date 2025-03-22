@@ -1,7 +1,44 @@
 {
-    "puzzles": [
-        { "emoji": "🦁👑", "answer": "The Lion King" },
-        { "emoji": "🍕👨‍🍳", "answer": "Chef" },
-        { "emoji": "🦇🦇", "answer": "Batman" }
-    ]
+  "puzzles": [
+    {
+      "emoji": "🦁👑",
+      "answer": "The Lion King",
+      "date": "03/22/2025"
+    },
+    {
+      "emoji": "👸🏻❄️",
+      "answer": "Frozen",
+      "date": "03/23/2025"
+    },
+    {
+      "emoji": "🎬🧙‍♂️💍",
+      "answer": "The Lord of the Rings",
+      "date": "03/24/2025"
+    },
+    {
+      "emoji": "🦖🌍",
+      "answer": "Jurassic Park",
+      "date": "03/25/2025"
+    },
+    {
+      "emoji": "🧛‍♂️🌑",
+      "answer": "Dracula",
+      "date": "03/26/2025"
+    },
+    {
+      "emoji": "👨‍🚀🌑",
+      "answer": "Apollo 11",
+      "date": "03/27/2025"
+    },
+    {
+      "emoji": "🦇🏙️",
+      "answer": "Batman",
+      "date": "03/28/2025"
+    },
+    {
+      "emoji": "👑💍",
+      "answer": "The Queen's Gambit",
+      "date": "03/29/2025"
+    }
+  ]
 }
