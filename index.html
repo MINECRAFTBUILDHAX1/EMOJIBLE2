@@ -329,15 +329,63 @@
             localStorage.setItem('currentDate', currentDate);
         }
 
-        function getTodayPuzzle() {
-            const currentDate = new Date().toLocaleDateString();
-            const storedDate = localStorage.getItem('currentDate');
+        // Function to get today's puzzle from JSON
+function getTodayPuzzle() {
+    const currentDate = new Date().toLocaleDateString(); // Get today's date as MM/DD/YYYY
+    const storedDate = localStorage.getItem('currentDate'); // Get stored date from localStorage
+    const puzzleCompleted = localStorage.getItem('puzzleCompleted'); // Check if puzzle is already completed
 
-            if (storedDate !== currentDate) {
-                localStorage.setItem('currentDate', currentDate);
-                loadPuzzle();
-            }
+    // If puzzle hasn't been completed today and today's puzzle isn't already displayed
+    if (storedDate !== currentDate || !puzzleCompleted) {
+        fetch('puzzles.json')
+            .then(response => response.json()) // Fetch the puzzles JSON
+            .then(data => {
+                const puzzles = data.puzzles;
+                const puzzleForToday = puzzles.find(puzzle => puzzle.date === currentDate); // Find today's puzzle
+
+                if (puzzleForToday) {
+                    // Store today's date and puzzle details in localStorage
+                    localStorage.setItem('currentDate', currentDate);
+                    localStorage.setItem('emojiPuzzle', puzzleForToday.emoji);
+                    localStorage.setItem('correctAnswer', puzzleForToday.answer);
+                    localStorage.setItem('puzzleCompleted', 'false'); // Flag as not completed
+
+                    // Display the puzzle on the page
+                    displayPuzzle(puzzleForToday);
+                }
+            });
+    } else if (puzzleCompleted === 'true') {
+        // If puzzle has been completed, show a message
+        document.getElementById('message').textContent = "You've already completed today's puzzle! Come back tomorrow for another one.";
+    } else {
+        // If it's today's date and puzzle is not completed, show the puzzle
+        const emojiPuzzle = localStorage.getItem('emojiPuzzle');
+        const correctAnswer = localStorage.getItem('correctAnswer');
+
+        if (emojiPuzzle && correctAnswer) {
+            // Display the puzzle from localStorage
+            document.getElementById('emoji-puzzle').textContent = emojiPuzzle;
+            document.getElementById('correct-answer').textContent = correctAnswer; // Optional: For testing purposes
         }
+    }
+}
+
+// Function to display the puzzle on the page
+function displayPuzzle(puzzle) {
+    document.getElementById('emoji-puzzle').textContent = puzzle.emoji;
+    document.getElementById('correct-answer').textContent = puzzle.answer; // Optional: For testing purposes
+}
+
+// Call the function on page load
+window.onload = getTodayPuzzle;
+
+// Call this function when user completes the puzzle (you would trigger this when the puzzle is solved)
+function completePuzzle() {
+    // Flag the puzzle as completed
+    localStorage.setItem('puzzleCompleted', 'true');
+    document.getElementById('message').textContent = "You've completed today's puzzle! See you tomorrow!";
+}
+
 
         window.onload = function () {
             getTodayPuzzle();
