@@ -1,4 +1,7 @@
 {
-  "2025-03-22": { "emoji": "🔥🎵", "answer": "fire music" },
-  "2025-03-23": { "emoji": "🚀🌕", "answer": "moon landing" }
+    "puzzles": [
+        { "emoji": "🦁👑", "answer": "The Lion King" },
+        { "emoji": "🍕👨‍🍳", "answer": "Chef" },
+        { "emoji": "🦇🦇", "answer": "Batman" }
+    ]
 }
