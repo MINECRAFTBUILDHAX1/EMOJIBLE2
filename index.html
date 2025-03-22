@@ -7,13 +7,33 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Help Icon -->
+    <div class="help-icon" onclick="showHelp()">&#63;</div>
+    
     <div class="container">
         <h1>🎮 Emojible - Daily Puzzle</h1>
         <div id="puzzleDisplay">Loading...</div>
         <input type="text" id="answerInput" placeholder="Your answer">
         <button onclick="checkAnswer()">Submit</button>
         <p id="message"></p>
+        <div id="progress-bar-container">
+            <div id="progress-bar"></div>
+        </div>
+        <p id="next-puzzle-message"></p>
     </div>
+
+    <!-- Help Popup -->
+    <div id="help-popup" class="help-popup">
+        <div class="popup-content">
+            <h2>Help</h2>
+            <p>The progress bar shows if your answer is correct:</p>
+            <ul>
+                <li>Fully green and "Correct!" means your answer is almost there, but it may have too many letters.</li>
+            </ul>
+            <button onclick="closeHelp()">Close</button>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
