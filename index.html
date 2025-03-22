@@ -187,7 +187,6 @@
         </div>
         <p id="next-puzzle-message"></p> <!-- Come back tomorrow message -->
     </div>
-    
     <!-- Help Popup -->
     <div id="help-popup" class="help-popup">
         <div class="popup-content">
@@ -210,16 +209,10 @@
     </footer>
 
     <script>
-        let puzzles = [];
-
-        // Load puzzles from JSON file (mocked for now)
-        fetch('puzzles.json')
-            .then(response => response.json())
-            .then(data => {
-                puzzles = data.puzzles;
-                checkForMidnightReset(); // Check for daily reset after loading puzzles
-                checkIfPuzzleCompleted(); // Check if the puzzle has been completed already
-            });
+        // Sample emojis and answers
+        const puzzles = [
+            { emoji: '🦁👑', answer: 'The Lion King' }
+        ];
 
         let currentPuzzle = 0;
 
@@ -311,44 +304,46 @@
             }
         }
 
-        // Get today's puzzle based on the date
+        // Function to load a new puzzle
+        function loadPuzzle() {
+            document.getElementById('emoji-puzzle').textContent = puzzles[currentPuzzle].emoji;
+        }
+
+        // Initial setup
+        checkForMidnightReset();
+        checkIfPuzzleCompleted();
+        
+        // Function to show the help popup
+        function showHelp() {
+            document.getElementById('help-popup').style.display = 'flex';
+        }
+
+        // Function to close the help popup
+        function closeHelp() {
+            document.getElementById('help-popup').style.display = 'none';
+        }
+
+        // Store today's date in localStorage
+        function storeTodayPuzzle() {
+            const currentDate = new Date().toLocaleDateString();
+            localStorage.setItem('currentDate', currentDate);
+        }
+
         function getTodayPuzzle() {
             const currentDate = new Date().toLocaleDateString();
             const storedDate = localStorage.getItem('currentDate');
 
             if (storedDate !== currentDate) {
-                localStorage.setItem('puzzleIndex', Math.floor(Math.random() * puzzles.length));
-                storeTodayPuzzle();
+                localStorage.setItem('currentDate', currentDate);
+                loadPuzzle();
             }
         }
 
-        // Store today's date
-        function storeTodayPuzzle() {
-            const currentDate = new Date().toLocaleDateString(); // Get today's date
-            localStorage.setItem('currentDate', currentDate);
-        }
-
-        // Get puzzle index
-        function getPuzzleIndex() {
-            return localStorage.getItem('puzzleIndex') || 0; // Default to the first puzzle
-        }
-
-        // Load puzzle based on index
-        function loadPuzzle() {
-            const puzzle = puzzles[getPuzzleIndex()];  // Use puzzle of the day
-            document.getElementById('emoji-puzzle').textContent = puzzle.emoji;
-            document.getElementById('answer-input').value = '';
-            document.getElementById('message').textContent = '';
-            document.getElementById('progress-bar').style.width = '0%';
-            document.getElementById('next-puzzle-message').textContent = '';
-        }
-
         window.onload = function () {
-            getTodayPuzzle();  // Check if puzzle needs to be updated for today
-            loadPuzzle();      // Load puzzle of the day
+            getTodayPuzzle();
+            loadPuzzle();
         };
     </script>
-
 </body>
 
 </html>
