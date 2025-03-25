@@ -326,6 +326,16 @@
         }
         updateTimer();
     }
+      // Show the help popup
+function showHelp() {
+    document.getElementById('help-popup').style.display = 'flex';
+}
+
+// Close the help popup
+function closeHelp() {
+    document.getElementById('help-popup').style.display = 'none';
+}
+
 
     function loadNewPuzzle() {
         // Select a random puzzle from the list
